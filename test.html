@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Miss Count Input</title>
+
+  <style>
+    :root {
+      --navy: #0b1f44;
+      --navy-2: #16356f;
+      --navy-3: #244b93;
+      --yellow: #ffd54a;
+      --white: #ffffff;
+      --bg: #f3f6fb;
+      --line: #d7deea;
+      --text: #14213d;
+      --muted: #667085;
+      --danger: #c62828;
+      --ok: #167c3a;
+      --card-shadow: 0 10px 24px rgba(11, 31, 68, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        "Noto Sans JP",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 120px;
+      background: linear-gradient(180deg, var(--navy) 0 180px, var(--bg) 180px 100%);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px 12px 20px;
+    }
+
+    .hero {
+      color: var(--white);
+      padding: 8px 4px 16px;
+    }
+
+    .heroTitle {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .heroSub {
+      margin: 8px 0 0;
+      font-size: 12px;
+      opacity: 0.92;
+      line-height: 1.5;
+    }
+
+    .msg {
+      display: none;
+      margin: 0 0 12px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.55;
+      box-shadow: var(--card-shadow);
+    }
+
+    .msg.show {
+      display: block;
+    }
+
+    .msg.ok {
+      background: #e9f8ef;
+      color: var(--ok);
+      border: 1px solid #bfe6ca;
+    }
+
+    .msg.err {
+      background: #fdecec;
+      color: var(--danger);
+      border: 1px solid #efb4b4;
+    }
+
+    .shell {
+      background: var(--white);
+      border-radius: 26px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--navy);
+      padding: 10px;
+    }
+
+    .tabBtn {
+      appearance: none;
+      border: none;
+      min-height: 52px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tabBtn.active {
+      background: var(--yellow);
+      color: var(--navy);
+    }
+
+    .panel {
+      display: none;
+      padding: 12px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .section {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .sectionTitle {
+      margin: 0 0 12px;
+      color: var(--navy);
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .sectionDesc {
+      margin: -4px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--navy-2);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      min-height: 52px;
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 14px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input:focus,
+    .select:focus {
+      border-color: var(--navy-3);
+      box-shadow: 0 0 0 4px rgba(36, 75, 147, 0.1);
+    }
+
+    .btnRow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      min-height: 52px;
+      width: 100%;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .btnPrimary {
+      background: var(--yellow);
+      color: var(--navy);
+    }
+
+    .btnSecondary {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .btnGhost {
+      background: #eef4ff;
+      color: var(--navy);
+    }
+
+    .hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .playersList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .playerCard {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .playerHead {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .playerInfo {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .playerName {
+      margin: 0 0 4px;
+      color: var(--navy);
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .playerMeta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      min-width: 70px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge.active {
+      background: #e9f8ef;
+      color: var(--ok);
+    }
+
+    .badge.hidden {
+      background: #f2f4f7;
+      color: #667085;
+    }
+
+    .toggleBtn {
+      margin-top: 10px;
+      width: 100%;
+      min-height: 46px;
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .toggleBtn.toHidden {
+      background: #fff5d7;
+      color: #7a5600;
+    }
+
+    .toggleBtn.toActive {
+      background: #e8f1ff;
+      color: var(--navy-2);
+    }
+
+    .checkGrid,
+    .singleSelectGrid,
+    .categoryGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .checkItem {
+      position: relative;
+    }
+
+    .checkItem input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .checkLabel,
+    .pickBtn,
+    .categoryBtn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      min-height: 74px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: var(--navy);
+      padding: 10px 8px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+
+    .categoryBtn {
+      min-height: 78px;
+      appearance: none;
+    }
+
+    .pickBtn {
+      appearance: none;
+    }
+
+    .subLine {
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      opacity: 0.78;
+      line-height: 1.3;
+    }
+
+    .checkItem input:checked + .checkLabel,
+    .pickBtn.selected,
+    .categoryBtn.selected {
+      border-color: var(--navy);
+      background: var(--yellow);
+      box-shadow: 0 4px 10px rgba(255, 213, 74, 0.32);
+    }
+
+    .summaryBox {
+      background: #f9fbff;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .summaryRow {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #edf1f7;
+    }
+
+    .summaryRow:last-child {
+      border-bottom: none;
+    }
+
+    .summaryKey {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .summaryVal {
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.4;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 18px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: #fafcff;
+    }
+
+    .stickyActionBar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      z-index: 50;
+      width: 100%;
+      max-width: 480px;
+      padding: 10px 12px 12px;
+      background: linear-gradient(180deg, rgba(243, 246, 251, 0) 0%, rgba(243, 246, 251, 0.9) 25%, rgba(243, 246, 251, 1) 100%);
+    }
+
+    .stickyActionInner {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(215, 222, 234, 0.9);
+      box-shadow: 0 8px 22px rgba(11, 31, 68, 0.1);
+      border-radius: 22px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+    }
+
+    .desktopOnly {
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      body {
+        padding-bottom: 40px;
+      }
+
+      .app {
+        max-width: 760px;
+        padding: 18px 16px 30px;
+      }
+
+      .heroTitle {
+        font-size: 26px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .grid2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .checkGrid,
+      .singleSelectGrid,
+      .categoryGrid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .stickyActionBar {
+        display: none;
+      }
+
+      .desktopOnly {
+        display: block;
+      }
+
+      .desktopActions {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="hero">
+      <h1 class="heroTitle">ミス集計アプリ（入力側）</h1>
+      <p class="heroSub">スタッフがスマホから素早く入力するための画面です</p>
+    </header>
+
+    <div id="msg" class="msg"></div>
+
+    <main class="shell">
+      <div class="tabs">
+        <button id="tabRegister" class="tabBtn active" type="button">選手登録</button>
+        <button id="tabInput" class="tabBtn" type="button">データ入力</button>
+      </div>
+
+      <section id="panelRegister" class="panel active">
+        <div class="section">
+          <h2 class="sectionTitle">選手を登録する</h2>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="playerName">選手名</label>
+              <input id="playerName" class="input" type="text" placeholder="例：山田 花子">
+            </div>
+
+            <div class="field">
+              <label for="playerPosition">ポジション</label>
+              <select id="playerPosition" class="select">
+                <option value="">選択してください</option>
+                <option value="AT">AT</option>
+                <option value="MF">MF</option>
+                <option value="DF">DF</option>
+                <option value="G">G</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btnRow" style="margin-top:12px;">
+            <button id="btnAddPlayer" class="btn btnPrimary" type="button">選手を登録</button>
+            <button id="btnReloadPlayers" class="btn btnGhost" type="button">一覧を更新</button>
+          </div>
+
+          <div class="hint">
+            入力画面で表示されるのは「表示中」の選手のみです。<br>
+            一時的に外したい選手は下の一覧から非表示にできます。
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="sectionTitle">登録選手一覧</h2>
+          <div id="playersList" class="playersList"></div>
+        </div>
+      </section>
+
+      <section id="panelInput" class="panel">
+        <div class="section">
+          <h2 class="sectionTitle">1. 日付</h2>
+          <div class="field">
+            <label for="inputDate">日付</label>
+            <input id="inputDate" class="input" type="date">
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="sectionTitle">2. 担当選手を選ぶ</h2>
+          <p class="sectionDesc">まず、今見ている担当選手を選んでください。</p>
+          <div id="activePlayersSelect" class="checkGrid"></div>
+        </div>
+
+        <div class="section">
+          <h2 class="sectionTitle">3. ミスした選手を選ぶ</h2>
+          <p class="sectionDesc">担当選手の中から、今回ミスした選手を1人選びます。</p>
+          <div id="mistakePlayerPick" class="singleSelectGrid"></div>
+        </div>
+
+        <div class="section">
+          <h2 class="sectionTitle">4. ミスカテゴリーを選ぶ</h2>
+          <div id="categoryGrid" class="categoryGrid"></div>
+        </div>
+
+        <div class="section">
+          <h2 class="sectionTitle">確認</h2>
+          <div class="summaryBox">
+            <div class="summaryRow">
+              <div class="summaryKey">日付</div>
+              <div id="summaryDate" class="summaryVal">-</div>
+            </div>
+            <div class="summaryRow">
+              <div class="summaryKey">ミスした選手</div>
+              <div id="summaryPlayer" class="summaryVal">-</div>
+            </div>
+            <div class="summaryRow">
+              <div class="summaryKey">カテゴリー</div>
+              <div id="summaryCategory" class="summaryVal">-</div>
+            </div>
+          </div>
+
+          <div class="btnRow desktopActions desktopOnly" style="margin-top:12px;">
+            <button id="btnSendMistakePc" class="btn btnPrimary" type="button">送信</button>
+            <button id="btnResetInputPc" class="btn btnGhost" type="button">選択をリセット</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="stickyActionBar" class="stickyActionBar">
+    <div class="stickyActionInner">
+      <button id="btnSendMistake" class="btn btnPrimary" type="button">送信</button>
+      <button id="btnResetInput" class="btn btnGhost" type="button">リセット</button>
+    </div>
+  </div>
+
+  <script>
+    const SERVICE_URL = 'https://script.google.com/macros/s/AKfycbwWVChIw2IsqU-_fZI3wXT3Nkf5LLbiMfaz9STTyBGfrpG1IAGhBTRMnqJluSeVh1nR5g/exec';
+
+    const CATEGORIES = [
+      '右キャッチ',
+      '右パス',
+      '左キャッチ',
+      '左パス',
+      '右グラボ',
+      '左グラボ',
+      'ステーションパス',
+      'ステーションキャッチ',
+    ];
+
+    let allPlayers = [];
+    let activePlayers = [];
+    let selectedStaffPlayerIds = [];
+    let selectedMistakePlayerId = '';
+    let selectedCategory = '';
+
+    const msgEl = document.getElementById('msg');
+
+    const tabRegister = document.getElementById('tabRegister');
+    const tabInput = document.getElementById('tabInput');
+    const panelRegister = document.getElementById('panelRegister');
+    const panelInput = document.getElementById('panelInput');
+    const stickyActionBar = document.getElementById('stickyActionBar');
+
+    const playerNameEl = document.getElementById('playerName');
+    const playerPositionEl = document.getElementById('playerPosition');
+    const btnAddPlayer = document.getElementById('btnAddPlayer');
+    const btnReloadPlayers = document.getElementById('btnReloadPlayers');
+    const playersListEl = document.getElementById('playersList');
+
+    const inputDateEl = document.getElementById('inputDate');
+    const activePlayersSelectEl = document.getElementById('activePlayersSelect');
+    const mistakePlayerPickEl = document.getElementById('mistakePlayerPick');
+    const categoryGridEl = document.getElementById('categoryGrid');
+
+    const btnSendMistake = document.getElementById('btnSendMistake');
+    const btnResetInput = document.getElementById('btnResetInput');
+    const btnSendMistakePc = document.getElementById('btnSendMistakePc');
+    const btnResetInputPc = document.getElementById('btnResetInputPc');
+
+    const summaryDateEl = document.getElementById('summaryDate');
+    const summaryPlayerEl = document.getElementById('summaryPlayer');
+    const summaryCategoryEl = document.getElementById('summaryCategory');
+
+    init();
+
+    async function init() {
+      setToday();
+      renderCategoryButtons();
+      bindEvents();
+
+      try {
+        await loadPlayers();
+        await loadActivePlayers();
+        renderInputArea();
+        updateSummary();
+        updateActionBarVisibility();
+      } catch (err) {
+        showMsg(err.message || String(err), 'err');
+      }
+    }
+
+    function bindEvents() {
+      tabRegister.addEventListener('click', () => switchTab('register'));
+      tabInput.addEventListener('click', async () => {
+        switchTab('input');
+        try {
+          await loadActivePlayers();
+          renderInputArea();
+        } catch (err) {
+          showMsg(err.message || String(err), 'err');
+        }
+      });
+
+      btnAddPlayer.addEventListener('click', onAddPlayer);
+
+      btnReloadPlayers.addEventListener('click', async () => {
+        try {
+          await loadPlayers();
+          await loadActivePlayers();
+          renderInputArea();
+          showMsg('一覧を更新しました。', 'ok');
+        } catch (err) {
+          showMsg(err.message || String(err), 'err');
+        }
+      });
+
+      inputDateEl.addEventListener('change', updateSummary);
+
+      btnSendMistake.addEventListener('click', onSendMistake);
+      btnResetInput.addEventListener('click', resetInputSelection);
+
+      if (btnSendMistakePc) btnSendMistakePc.addEventListener('click', onSendMistake);
+      if (btnResetInputPc) btnResetInputPc.addEventListener('click', resetInputSelection);
+
+      playerNameEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') onAddPlayer();
+      });
+
+      window.addEventListener('resize', updateActionBarVisibility);
+    }
+
+    function switchTab(tab) {
+      const isRegister = tab === 'register';
+
+      tabRegister.classList.toggle('active', isRegister);
+      tabInput.classList.toggle('active', !isRegister);
+
+      panelRegister.classList.toggle('active', isRegister);
+      panelInput.classList.toggle('active', !isRegister);
+
+      updateActionBarVisibility();
+    }
+
+    function updateActionBarVisibility() {
+      const isInput = panelInput.classList.contains('active');
+      if (window.innerWidth >= 640) {
+        stickyActionBar.style.display = 'none';
+      } else {
+        stickyActionBar.style.display = isInput ? 'block' : 'none';
+      }
+    }
+
+    function setToday() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      inputDateEl.value = y + '-' + m + '-' + d;
+    }
+
+    async function apiGet(action, params = {}) {
+      const url = new URL(SERVICE_URL);
+      url.searchParams.set('action', action);
+
+      Object.entries(params).forEach(([key, val]) => {
+        if (val !== undefined && val !== null && val !== '') {
+          url.searchParams.set(key, val);
+        }
+      });
+
+      const res = await fetch(url.toString(), { method: 'GET' });
+
+      if (!res.ok) {
+        throw new Error('通信に失敗しました (' + res.status + ')');
+      }
+
+      const json = await res.json();
+
+      if (!json.ok) {
+        throw new Error(json.error || 'APIエラーが発生しました。');
+      }
+
+      return json;
+    }
+
+    async function apiPost(action, data = {}) {
+      const res = await fetch(SERVICE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({ action, data })
+      });
+
+      if (!res.ok) {
+        throw new Error('通信に失敗しました (' + res.status + ')');
+      }
+
+      const json = await res.json();
+
+      if (!json.ok) {
+        throw new Error(json.error || 'APIエラーが発生しました。');
+      }
+
+      return json;
+    }
+
+    function showMsg(text, type = 'ok') {
+      msgEl.textContent = text;
+      msgEl.className = 'msg show ' + type;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function clearMsg() {
+      msgEl.textContent = '';
+      msgEl.className = 'msg';
+    }
+
+    async function loadPlayers() {
+      clearMsg();
+      const json = await apiGet('getPlayers', { includeHidden: 'true' });
+      allPlayers = Array.isArray(json.players) ? json.players : [];
+      renderPlayersList();
+    }
+
+    function renderPlayersList() {
+      if (!allPlayers.length) {
+        playersListEl.innerHTML = '<div class="empty">まだ選手が登録されていません。</div>';
+        return;
+      }
+
+      playersListEl.innerHTML = allPlayers.map(player => {
+        const isActive = player.status === 'active';
+        return `
+          <div class="playerCard">
+            <div class="playerHead">
+              <div class="playerInfo">
+                <p class="playerName">${escapeHtml(player.name || '')}</p>
+                <p class="playerMeta">ポジション：${escapeHtml(player.position || '-')}</p>
+              </div>
+              <span class="badge ${isActive ? 'active' : 'hidden'}">
+                ${isActive ? '表示中' : '非表示'}
+              </span>
+            </div>
+            <button
+              class="toggleBtn ${isActive ? 'toHidden' : 'toActive'}"
+              type="button"
+              onclick="togglePlayerStatus('${escapeAttr(player.playerId)}', '${isActive ? 'hidden' : 'active'}')"
+            >
+              ${isActive ? '非表示にする' : '表示状態に戻す'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function onAddPlayer() {
+      clearMsg();
+
+      const name = playerNameEl.value.trim();
+      const position = playerPositionEl.value;
+
+      if (!name) {
+        showMsg('選手名を入力してください。', 'err');
+        return;
+      }
+
+      if (!position) {
+        showMsg('ポジションを選択してください。', 'err');
+        return;
+      }
+
+      try {
+        btnAddPlayer.disabled = true;
+
+        const json = await apiPost('addPlayer', { name, position });
+        showMsg(json.message || '選手を登録しました。', 'ok');
+
+        playerNameEl.value = '';
+        playerPositionEl.value = '';
+
+        await loadPlayers();
+        await loadActivePlayers();
+        renderInputArea();
+      } catch (err) {
+        showMsg(err.message || String(err), 'err');
+      } finally {
+        btnAddPlayer.disabled = false;
+      }
+    }
+
+    async function togglePlayerStatus(playerId, status) {
+      clearMsg();
+
+      try {
+        await apiPost('updatePlayerStatus', { playerId, status });
+
+        showMsg(
+          status === 'hidden'
+            ? '選手を非表示にしました。'
+            : '選手を表示状態に戻しました。',
+          'ok'
+        );
+
+        await loadPlayers();
+        await loadActivePlayers();
+
+        selectedStaffPlayerIds = selectedStaffPlayerIds.filter(id =>
+          activePlayers.some(p => p.playerId === id)
+        );
+
+        if (!selectedStaffPlayerIds.includes(selectedMistakePlayerId)) {
+          selectedMistakePlayerId = '';
+        }
+
+        renderInputArea();
+      } catch (err) {
+        showMsg(err.message || String(err), 'err');
+      }
+    }
+
+    window.togglePlayerStatus = togglePlayerStatus;
+
+    async function loadActivePlayers() {
+      const json = await apiGet('getActivePlayers');
+      activePlayers = Array.isArray(json.players) ? json.players : [];
+    }
+
+    function renderInputArea() {
+      renderActivePlayerChecks();
+      renderMistakePlayerPick();
+      updateSummary();
+    }
+
+    function renderActivePlayerChecks() {
+      if (!activePlayers.length) {
+        activePlayersSelectEl.innerHTML = `
+          <div class="empty">
+            表示中の選手がいません。<br>
+            まず選手登録タブで選手を登録してください。
+          </div>
+        `;
+        return;
+      }
+
+      activePlayersSelectEl.innerHTML = activePlayers.map(player => {
+        const checked = selectedStaffPlayerIds.includes(player.playerId);
+        return `
+          <div class="checkItem">
+            <input
+              id="staff_${escapeAttr(player.playerId)}"
+              type="checkbox"
+              value="${escapeAttr(player.playerId)}"
+              ${checked ? 'checked' : ''}
+            >
+            <label class="checkLabel" for="staff_${escapeAttr(player.playerId)}">
+              <span>${escapeHtml(player.name)}</span>
+              <span class="subLine">${escapeHtml(player.position || '')}</span>
+            </label>
+          </div>
+        `;
+      }).join('');
+
+      activePlayersSelectEl.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+        chk.addEventListener('change', () => {
+          selectedStaffPlayerIds = Array.from(
+            activePlayersSelectEl.querySelectorAll('input[type="checkbox"]:checked')
+          ).map(el => el.value);
+
+          if (!selectedStaffPlayerIds.includes(selectedMistakePlayerId)) {
+            selectedMistakePlayerId = '';
+          }
+
+          renderMistakePlayerPick();
+          updateSummary();
+        });
+      });
+    }
+
+    function renderMistakePlayerPick() {
+      const selectedPlayers = activePlayers.filter(p =>
+        selectedStaffPlayerIds.includes(p.playerId)
+      );
+
+      if (!selectedPlayers.length) {
+        mistakePlayerPickEl.innerHTML = '<div class="empty">先に担当選手を選んでください。</div>';
+        return;
+      }
+
+      mistakePlayerPickEl.innerHTML = selectedPlayers.map(player => {
+        const selected = selectedMistakePlayerId === player.playerId;
+        return `
+          <button
+            class="pickBtn ${selected ? 'selected' : ''}"
+            type="button"
+            data-player-id="${escapeAttr(player.playerId)}"
+          >
+            <div>${escapeHtml(player.name)}</div>
+            <div class="subLine">${escapeHtml(player.position || '')}</div>
+          </button>
+        `;
+      }).join('');
+
+      mistakePlayerPickEl.querySelectorAll('.pickBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedMistakePlayerId = btn.dataset.playerId || '';
+          renderMistakePlayerPick();
+          updateSummary();
+        });
+      });
+    }
+
+    function renderCategoryButtons() {
+      categoryGridEl.innerHTML = CATEGORIES.map(cat => `
+        <button
+          class="categoryBtn ${selectedCategory === cat ? 'selected' : ''}"
+          type="button"
+          data-category="${escapeAttr(cat)}"
+        >
+          ${escapeHtml(cat)}
+        </button>
+      `).join('');
+
+      categoryGridEl.querySelectorAll('.categoryBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedCategory = btn.dataset.category || '';
+          renderCategoryButtons();
+          updateSummary();
+        });
+      });
+    }
+
+    function updateSummary() {
+      summaryDateEl.textContent = inputDateEl.value || '-';
+
+      const player = activePlayers.find(p => p.playerId === selectedMistakePlayerId);
+      summaryPlayerEl.textContent = player ? player.name : '-';
+
+      summaryCategoryEl.textContent = selectedCategory || '-';
+    }
+
+    function resetInputSelection() {
+      selectedStaffPlayerIds = [];
+      selectedMistakePlayerId = '';
+      selectedCategory = '';
+
+      setToday();
+      renderCategoryButtons();
+      renderInputArea();
+      clearMsg();
+    }
+
+    async function onSendMistake() {
+      clearMsg();
+
+      const date = inputDateEl.value;
+      const playerId = selectedMistakePlayerId;
+      const category = selectedCategory;
+
+      if (!date) {
+        showMsg('日付を入力してください。', 'err');
+        return;
+      }
+
+      if (!selectedStaffPlayerIds.length) {
+        showMsg('担当選手を選択してください。', 'err');
+        return;
+      }
+
+      if (!playerId) {
+        showMsg('ミスした選手を選択してください。', 'err');
+        return;
+      }
+
+      if (!category) {
+        showMsg('ミスカテゴリーを選択してください。', 'err');
+        return;
+      }
+
+      try {
+        setSendButtonsDisabled(true);
+
+        await apiPost('addMistake', {
+          date,
+          playerId,
+          category
+        });
+
+        const player = activePlayers.find(p => p.playerId === playerId);
+
+        showMsg(
+          '送信しました：' + (player ? player.name : '選手') + ' / ' + category,
+          'ok'
+        );
+
+        selectedMistakePlayerId = '';
+        selectedCategory = '';
+
+        renderMistakePlayerPick();
+        renderCategoryButtons();
+        updateSummary();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        showMsg(err.message || String(err), 'err');
+      } finally {
+        setSendButtonsDisabled(false);
+      }
+    }
+
+    function setSendButtonsDisabled(disabled) {
+      btnSendMistake.disabled = disabled;
+      if (btnSendMistakePc) btnSendMistakePc.disabled = disabled;
+      btnResetInput.disabled = disabled;
+      if (btnResetInputPc) btnResetInputPc.disabled = disabled;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+  </script>
+</body>
+</html>
